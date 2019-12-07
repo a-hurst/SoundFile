@@ -3,7 +3,13 @@ import sys
 from cffi import FFI
 
 ffibuilder = FFI()
-ffibuilder.set_source("_soundfile", None)
+ffibuilder.set_source(
+    "_soundfile",
+    """
+    #include <sndfile.h>
+    """,
+    libraries=["sndfile"]
+)
 ffibuilder.cdef("""
 enum
 {

@@ -15,6 +15,7 @@ import sys as _sys
 from os import SEEK_SET, SEEK_CUR, SEEK_END
 from ctypes.util import find_library as _find_library
 from _soundfile import ffi as _ffi
+from _soundfile import lib as _snd
 
 try:
     _unicode = unicode  # doesn't exist in Python 3.x
@@ -136,31 +137,31 @@ _ffi_types = {
     'int16': 'short'
 }
 
-try:
-    _libname = _find_library('sndfile')
-    if _libname is None:
-        raise OSError('sndfile library not found')
-    _snd = _ffi.dlopen(_libname)
-except OSError:
-    if _sys.platform == 'darwin':
-        _libname = 'libsndfile.dylib'
-    elif _sys.platform == 'win32':
-        from platform import architecture as _architecture
-        _libname = 'libsndfile' + _architecture()[0] + '.dll'
-    else:
-        raise
-
-    # hack for packaging tools like cx_Freeze, which
-    # compress all scripts into a zip file
-    # which causes __file__ to be inside this zip file
-
-    _path = _os.path.dirname(_os.path.abspath(__file__))
-
-    while not _os.path.isdir(_path):
-        _path = _os.path.abspath(_os.path.join(_path, '..'))
-
-    _snd = _ffi.dlopen(_os.path.join(
-        _path, '_soundfile_data', _libname))
+#try:
+#    _libname = _find_library('sndfile')
+#    if _libname is None:
+#        raise OSError('sndfile library not found')
+#    _snd = _ffi.dlopen(_libname)
+#except OSError:
+#    if _sys.platform == 'darwin':
+#        _libname = 'libsndfile.dylib'
+#    elif _sys.platform == 'win32':
+#        from platform import architecture as _architecture
+#        _libname = 'libsndfile' + _architecture()[0] + '.dll'
+#    else:
+#        raise
+#
+#    # hack for packaging tools like cx_Freeze, which
+#    # compress all scripts into a zip file
+#    # which causes __file__ to be inside this zip file
+#
+#    _path = _os.path.dirname(_os.path.abspath(__file__))
+#
+#    while not _os.path.isdir(_path):
+#        _path = _os.path.abspath(_os.path.join(_path, '..'))
+#
+#    _snd = _ffi.dlopen(_os.path.join(
+#        _path, '_soundfile_data', _libname))
 
 __libsndfile_version__ = _ffi.string(_snd.sf_version_string()).decode('utf-8', 'replace')
 if __libsndfile_version__.startswith('libsndfile-'):

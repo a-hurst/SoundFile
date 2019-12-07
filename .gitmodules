@@ -1,3 +1,0 @@
-[submodule "_soundfile_data"]
-	path = _soundfile_data
-	url = https://github.com/bastibe/libsndfile-binaries.git

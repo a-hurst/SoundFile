@@ -1,43 +1,12 @@
 #!/usr/bin/env python
 import os
-from platform import architecture
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import sys
 
-PYTHON_INTERPRETERS = '.'.join([
-    'cp26', 'cp27',
-    'cp32', 'cp33', 'cp34', 'cp35', 'cp36',
-    'pp27',
-    'pp32', 'pp33',
-])
-MACOSX_VERSIONS = '.'.join([
-    'macosx_10_5_x86_64',
-    'macosx_10_6_intel',
-    'macosx_10_9_intel',
-    'macosx_10_9_x86_64',
-])
-
-# environment variables for cross-platform package creation
-platform = os.environ.get('PYSOUNDFILE_PLATFORM', sys.platform)
-architecture0 = os.environ.get('PYSOUNDFILE_ARCHITECTURE', architecture()[0])
-
-if platform == 'darwin':
-    libname = 'libsndfile.dylib'
-elif platform == 'win32':
-    libname = 'libsndfile' + architecture0 + '.dll'
-else:
-    libname = None
-
-if libname and os.path.isdir('_soundfile_data'):
-    packages = ['_soundfile_data']
-    package_data = {'_soundfile_data': [libname, 'COPYING']}
-    zip_safe = False
-else:
-    packages = None
-    package_data = None
-    zip_safe = True
-
+packages = None
+package_data = None
+zip_safe = True
 
 class PyTest(TestCommand):
 
@@ -59,31 +28,6 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 cmdclass = {'test': PyTest}
-
-try:
-    from wheel.bdist_wheel import bdist_wheel
-except ImportError:
-    pass
-else:
-
-    class bdist_wheel_half_pure(bdist_wheel):
-        """Create OS-dependent, but Python-independent wheels."""
-
-        def get_tag(self):
-            pythons = 'py2.py3.' + PYTHON_INTERPRETERS
-            if platform == 'darwin':
-                oses = MACOSX_VERSIONS
-            elif platform == 'win32':
-                if architecture0 == '32bit':
-                    oses = 'win32'
-                else:
-                    oses = 'win_amd64'
-            else:
-                pythons = 'py2.py3'
-                oses = 'any'
-            return pythons, 'none', oses
-
-    cmdclass['bdist_wheel'] = bdist_wheel_half_pure
 
 setup(
     name='SoundFile',

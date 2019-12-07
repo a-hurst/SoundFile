@@ -1,20 +1,38 @@
 language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "nightly"
-  - "pypy"
-  # TODO: Enable pypy3 once NumPy is working there, see	
-  # https://bitbucket.org/pypy/pypy/issues/1567/	
-  #- "pypy3"
-addons:
-  apt:
-    packages:
-    - libsndfile1
+env:
+  global:
+  - CIBW_TEST_REQUIRES='numpy'
+  - CIBW_TEST_COMMAND='python setup.py test'
+  - CIBW_BEFORE_BUILD_LINUX='yum install -y libsndfile-devel libsndfile'
+jobs:
+  include:
+    # perform a linux build
+    - services: docker
+    # and a mac build
+    - os: osx
+      language: shell
+      before_install:
+        - brew install libsndfile
+#python:
+#  - "2.7"
+#  - "3.4"
+#  - "3.5"
+#  - "3.6"
+#  - "3.7"
+#  - "nightly"
+#  - "pypy"
+#  # TODO: Enable pypy3 once NumPy is working there, see	
+#  # https://bitbucket.org/pypy/pypy/issues/1567/	
+#  #- "pypy3"
+#addons:
+#  apt:
+#    packages:
+#    - libsndfile1
 install:
+  - python -m pip install twine cibuildwheel==1.0.0
   - "if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then pip install git+https://bitbucket.org/pypy/numpy.git ; fi"
+
 script:
-  - python setup.py test
+  # build the wheels, put them into './wheelhouse'
+  - python -m cibuildwheel --output-dir wheelhouse
+#  - python setup.py test
